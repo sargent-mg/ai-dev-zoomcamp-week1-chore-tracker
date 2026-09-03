@@ -3,43 +3,43 @@
 Derived from [_docs/plan.md](_docs/plan.md).
 
 ## 1. Data models
-- [ ] `Household` model (a household has a shared link/slug, no auth)
-- [ ] `Person` model (name, belongs to a `Household`, no password)
-- [ ] `Chore` model (name, belongs to a `Household`, fixed daily recurrence)
-- [ ] `ChoreAssignment` — links a `Chore` to a `Person` (fixed, permanent assignment, not rotating)
-- [ ] `ChoreLog` — one entry per chore per day: status (`done` / `missed`), timestamp, done by
+- [x] `Household` model (a household has a shared link/slug, no auth)
+- [x] `Person` model (name, belongs to a `Household`, no password)
+- [x] `Chore` model (name, belongs to a `Household`, fixed daily recurrence)
+- [x] `ChoreAssignment` — links a `Chore` to a `Person` (fixed, permanent assignment, not rotating)
+- [x] `ChoreLog` — one entry per chore per day: status (`done` / `missed`), timestamp, done by
 
 ## 2. Household access (no login)
-- [ ] Route to create a new household (generates a shareable link/slug)
-- [ ] Landing page for a household link: list of people, "pick your name" to identify as that person for the session
-- [ ] Store the picked person in the session (no accounts/passwords)
+- [x] Route to create a new household (generates a shareable link/slug)
+- [x] Landing page for a household link: list of people, "pick your name" to identify as that person for the session
+- [x] Store the picked person in the session (no accounts/passwords)
 
 ## 3. Chore & person setup
-- [ ] View/form to add people to a household
-- [ ] View/form to add chores to a household
-- [ ] View/form to assign a chore to a person (fixed assignment, editable by anyone in the household)
+- [x] View/form to add people to a household
+- [x] View/form to add chores to a household
+- [x] View/form to assign a chore to a person (fixed assignment, editable by anyone in the household)
 
 ## 4. Daily chore list (shared view)
-- [ ] View showing all chores for the household today, with assignee and status
-- [ ] Self check-off action: mark a chore done as the currently identified person (honor system, no approval step)
-- [ ] Prevent marking someone else's chore as done (or decide if that's allowed — check against plan's "self check-off")
+- [x] View showing all chores for the household today, with assignee and status
+- [x] Self check-off action: mark a chore done as the currently identified person (honor system, no approval step)
+- [x] Prevent marking someone else's chore as done (only the assigned person sees/can use the "Mark done" button)
 
 ## 5. Missed chore handling
-- [ ] Daily job/management command (or lazy check on page load) that marks yesterday's incomplete chores as "missed"
-- [ ] No notifications/escalation — just log the missed status in history
+- [x] Daily job/management command (`mark_missed_chores`, defaults to yesterday) that marks incomplete assigned chores as "missed"
+- [x] No notifications/escalation — just log the missed status in history
 
 ## 6. History view
-- [ ] Page showing past days' chore completion/missed status per person
-- [ ] Simple filter by person or by date range (optional, keep minimal)
+- [x] Page showing past days' chore completion/missed status per person
+- [x] Simple filter by person or by date range
 
 ## 7. UI / responsive web app
-- [ ] Base responsive template (mobile-friendly, no app install)
-- [ ] Wire up templates for household landing, daily list, history
+- [x] Base responsive template (mobile-friendly, no app install)
+- [x] Wire up templates for household landing, daily list, history
 
 ## 8. Admin & housekeeping
-- [ ] Register models in Django admin for easy debugging/data entry
-- [ ] Seed/fixture data or management command for quick local testing
-- [ ] Basic tests: model behavior (missed-chore logic), check-off view, session-based person identification
+- [x] Register models in Django admin for easy debugging/data entry
+- [x] Seed/fixture data or management command for quick local testing (`seed_demo`)
+- [x] Basic tests: model behavior (missed-chore logic), check-off view, session-based person identification
 
 ## Explicitly out of scope (do not build)
 - Chore rotation between people

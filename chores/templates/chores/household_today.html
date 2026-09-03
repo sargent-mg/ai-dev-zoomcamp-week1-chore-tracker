@@ -1,0 +1,38 @@
+{% extends "chores/base.html" %}
+
+{% block title %}Today — {{ household.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ household.name }} — Today ({{ today }})</h1>
+
+{% if current_person %}
+    <p>You are identified as <strong>{{ current_person.name }}</strong>.</p>
+{% else %}
+    <p>You haven't picked your name yet. <a href="{% url 'household_detail' slug=household.slug %}">Pick your name</a>.</p>
+{% endif %}
+
+<ul>
+    {% for row in chore_rows %}
+    <li>
+        <strong>{{ row.chore.name }}</strong>
+        {% if row.assignee %}— {{ row.assignee.name }}{% else %}— unassigned{% endif %}
+        —
+        {% if row.log %}
+            {{ row.log.get_status_display }}
+            {% if row.log.completed_at %}(at {{ row.log.completed_at|time:"H:i" }}){% endif %}
+        {% else %}
+            pending
+        {% endif %}
+
+        {% if row.can_check_off %}
+            <form method="post" action="{% url 'check_off_chore' slug=household.slug chore_id=row.chore.id %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit">Mark done</button>
+            </form>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li>No chores yet. <a href="{% url 'household_detail' slug=household.slug %}">Add some</a>.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "chores/base.html" %}
+
+{% block title %}{{ household.name }}{% endblock %}
+
+{% block content %}
+<h1>{{ household.name }}</h1>
+
+{% if current_person %}
+    <p>You are identified as <strong>{{ current_person.name }}</strong>.</p>
+{% else %}
+    <p>Who are you? Pick your name below.</p>
+{% endif %}
+
+<h2>People</h2>
+<ul>
+    {% for person in people %}
+    <li>
+        {{ person.name }}
+        {% if current_person.id == person.id %}
+            (you)
+        {% else %}
+            <form method="post" action="{% url 'pick_person' slug=household.slug person_id=person.id %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit">I'm {{ person.name }}</button>
+            </form>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li>No people yet.</li>
+    {% endfor %}
+</ul>
+
+<form method="post" action="{% url 'add_person' slug=household.slug %}">
+    {% csrf_token %}
+    {{ person_form.as_p }}
+    <button type="submit">Add person</button>
+</form>
+
+<h2>Chores</h2>
+<ul>
+    {% for chore in chores %}
+    <li>
+        {{ chore.name }} —
+        {% if chore.assignment %}
+            assigned to {{ chore.assignment.person.name }}
+        {% else %}
+            unassigned
+        {% endif %}
+        <form method="post" action="{% url 'assign_chore' slug=household.slug chore_id=chore.id %}" style="display:inline">
+            {% csrf_token %}
+            <select name="person">
+                <option value="">-- unassigned --</option>
+                {% for person in people %}
+                <option value="{{ person.id }}" {% if chore.assignment.person_id == person.id %}selected{% endif %}>{{ person.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit">Set</button>
+        </form>
+    </li>
+    {% empty %}
+    <li>No chores yet.</li>
+    {% endfor %}
+</ul>
+
+<form method="post" action="{% url 'add_chore' slug=household.slug %}">
+    {% csrf_token %}
+    {{ chore_form.as_p }}
+    <button type="submit">Add chore</button>
+</form>
+{% endblock %}
