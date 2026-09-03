@@ -1,70 +1,100 @@
 {% extends "chores/base.html" %}
 
-{% block title %}{{ household.name }}{% endblock %}
+{% block title %}Setup — {{ household.name }}{% endblock %}
 
 {% block content %}
 <h1>{{ household.name }}</h1>
+<p class="subtitle">Set up who's in the household and which chores they own.</p>
 
 {% if current_person %}
-    <p>You are identified as <strong>{{ current_person.name }}</strong>.</p>
+<div class="banner">You're checked in as <strong>{{ current_person.name }}</strong>.</div>
 {% else %}
-    <p>Who are you? Pick your name below.</p>
+<div class="banner">Pick your name below so the app knows who you are.</div>
 {% endif %}
 
-<h2>People</h2>
-<ul>
-    {% for person in people %}
-    <li>
-        {{ person.name }}
-        {% if current_person.id == person.id %}
-            (you)
-        {% else %}
-            <form method="post" action="{% url 'pick_person' slug=household.slug person_id=person.id %}" style="display:inline">
+<div class="card">
+    <h2>Share this household</h2>
+    <form class="inline-form" onsubmit="return false">
+        <input type="text" id="share-link" readonly onclick="this.select()"
+               value="{{ request.scheme }}://{{ request.get_host }}{% url 'household_detail' slug=household.slug %}"
+               style="flex:1; min-width:14rem;">
+        <button type="button" id="copy-share-link" class="sm secondary" onclick="copyShareLink(this)">Copy</button>
+    </form>
+    <p class="empty">Send this link to everyone in your household — no account needed.</p>
+</div>
+
+<div class="card">
+    <h2>People</h2>
+    <ul class="list">
+        {% for person in people %}
+        <li class="list-item">
+            <span class="name">{{ person.name }}</span>
+            {% if current_person.id == person.id %}
+                <span class="badge badge-done">you</span>
+            {% else %}
+                <form method="post" action="{% url 'pick_person' slug=household.slug person_id=person.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="sm secondary">I'm {{ person.name }}</button>
+                </form>
+            {% endif %}
+        </li>
+        {% empty %}
+        <li class="empty">No people yet — add the first one below.</li>
+        {% endfor %}
+    </ul>
+
+    <form method="post" action="{% url 'add_person' slug=household.slug %}" class="inline-form">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Name" required>
+        <button type="submit" class="secondary">Add person</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2>Chores</h2>
+    <ul class="list">
+        {% for chore in chores %}
+        <li class="list-item">
+            <span class="name">{{ chore.name }}</span>
+            <form method="post" action="{% url 'assign_chore' slug=household.slug chore_id=chore.id %}" class="inline-form">
                 {% csrf_token %}
-                <button type="submit">I'm {{ person.name }}</button>
+                <select name="person">
+                    <option value="">Unassigned</option>
+                    {% for person in people %}
+                    <option value="{{ person.id }}" {% if chore.assignment.person_id == person.id %}selected{% endif %}>{{ person.name }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit" class="sm secondary">Set</button>
             </form>
-        {% endif %}
-    </li>
-    {% empty %}
-    <li>No people yet.</li>
-    {% endfor %}
-</ul>
+        </li>
+        {% empty %}
+        <li class="empty">No chores yet — add the first one below.</li>
+        {% endfor %}
+    </ul>
 
-<form method="post" action="{% url 'add_person' slug=household.slug %}">
-    {% csrf_token %}
-    {{ person_form.as_p }}
-    <button type="submit">Add person</button>
-</form>
+    <form method="post" action="{% url 'add_chore' slug=household.slug %}" class="inline-form">
+        {% csrf_token %}
+        <input type="text" name="name" placeholder="Chore name" required>
+        <button type="submit" class="secondary">Add chore</button>
+    </form>
+</div>
 
-<h2>Chores</h2>
-<ul>
-    {% for chore in chores %}
-    <li>
-        {{ chore.name }} —
-        {% if chore.assignment %}
-            assigned to {{ chore.assignment.person.name }}
-        {% else %}
-            unassigned
-        {% endif %}
-        <form method="post" action="{% url 'assign_chore' slug=household.slug chore_id=chore.id %}" style="display:inline">
-            {% csrf_token %}
-            <select name="person">
-                <option value="">-- unassigned --</option>
-                {% for person in people %}
-                <option value="{{ person.id }}" {% if chore.assignment.person_id == person.id %}selected{% endif %}>{{ person.name }}</option>
-                {% endfor %}
-            </select>
-            <button type="submit">Set</button>
-        </form>
-    </li>
-    {% empty %}
-    <li>No chores yet.</li>
-    {% endfor %}
-</ul>
-
-<form method="post" action="{% url 'add_chore' slug=household.slug %}">
-    {% csrf_token %}
-    {{ chore_form.as_p }}
-    <button type="submit">Add chore</button>
-</form>
+<script>
+function copyShareLink(btn) {
+    var input = document.getElementById('share-link');
+    var text = input.value;
+    var showCopied = function () {
+        var original = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = original; }, 1500);
+    };
+    if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(showCopied);
+    } else {
+        input.select();
+        document.execCommand('copy');
+        showCopied();
+    }
+}
+</script>
 {% endblock %}

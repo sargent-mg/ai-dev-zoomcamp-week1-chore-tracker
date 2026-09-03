@@ -5,19 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Chore Tracker{% endblock %}</title>
     <style>
-        body { font-family: sans-serif; max-width: 40rem; margin: 0 auto; padding: 1rem; }
-        nav { margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #ccc; }
-        nav a { margin-right: 1rem; }
-        form { margin-bottom: 1rem; }
-        li { margin-bottom: 0.5rem; }
-        button, input, select { font-size: 1rem; padding: 0.3rem 0.6rem; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { text-align: left; padding: 0.4rem; border-bottom: 1px solid #eee; }
+        :root {
+            --bg: #f5f6f8;
+            --surface: #ffffff;
+            --border: #e3e6eb;
+            --text: #1f2430;
+            --text-muted: #6b7280;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #16a34a;
+            --success-bg: #dcfce7;
+            --danger: #dc2626;
+            --danger-bg: #fee2e2;
+            --pending-bg: #f1f5f9;
+            --pending-text: #475569;
+            --radius: 10px;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #14161c;
+                --surface: #1c1f27;
+                --border: #2c303a;
+                --text: #e7e9ee;
+                --text-muted: #9aa1ae;
+                --primary: #818cf8;
+                --primary-hover: #a5b4fc;
+                --success: #4ade80;
+                --success-bg: #14301f;
+                --danger: #f87171;
+                --danger-bg: #3a1717;
+                --pending-bg: #232733;
+                --pending-text: #b7bfcc;
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+        }
+        .container { max-width: 40rem; margin: 0 auto; padding: 1.25rem 1rem 3rem; }
+
+        h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+        h2 { font-size: 1.05rem; margin: 0 0 .75rem; }
+        .subtitle { color: var(--text-muted); margin: 0 0 1.25rem; }
+
+        nav.tabs {
+            display: flex; gap: .25rem; margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        nav.tabs a {
+            padding: .6rem .9rem; text-decoration: none; color: var(--text-muted);
+            font-weight: 600; font-size: .95rem; border-bottom: 2px solid transparent;
+        }
+        nav.tabs a.active { color: var(--primary); border-bottom-color: var(--primary); }
+        nav.tabs a:hover { color: var(--text); }
+
+        .card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 1.1rem 1.25rem; margin-bottom: 1.25rem;
+        }
+        .banner {
+            background: var(--pending-bg); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: .75rem 1rem; margin-bottom: 1.25rem;
+            color: var(--pending-text); font-size: .95rem;
+        }
+
+        .list { list-style: none; margin: 0 0 1rem; padding: 0; display: flex; flex-direction: column; gap: .5rem; }
+        .list-item {
+            display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+            padding: .6rem .75rem; background: var(--pending-bg); border-radius: 8px; flex-wrap: wrap;
+        }
+        .list-item .name { font-weight: 600; }
+        .empty { color: var(--text-muted); font-size: .9rem; padding: .5rem 0; }
+
+        form.inline-form { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: 0; }
+
+        label { font-size: .9rem; color: var(--text-muted); }
+        input[type=text], input[type=date], select {
+            border: 1px solid var(--border); border-radius: 8px; padding: .5rem .65rem;
+            font-size: .95rem; background: var(--surface); color: var(--text);
+        }
+        input:focus, select:focus, button:focus, a:focus { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+        button, .btn {
+            display: inline-flex; align-items: center; gap: .4rem; border: none; border-radius: 8px;
+            padding: .55rem 1rem; font-size: .95rem; font-weight: 600; cursor: pointer;
+            background: var(--primary); color: #fff;
+        }
+        button:hover, .btn:hover { background: var(--primary-hover); }
+        button.secondary, .btn.secondary {
+            background: var(--surface); border: 1px solid var(--border); color: var(--text);
+        }
+        button.secondary:hover, .btn.secondary:hover { background: var(--pending-bg); }
+        button.sm { padding: .35rem .7rem; font-size: .85rem; }
+
+        .badge { display: inline-block; padding: .15rem .55rem; border-radius: 999px; font-size: .75rem; font-weight: 700; }
+        .badge-done { background: var(--success-bg); color: var(--success); }
+        .badge-missed { background: var(--danger-bg); color: var(--danger); }
+        .badge-pending { background: var(--pending-bg); color: var(--pending-text); border: 1px solid var(--border); }
+
+        table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+        th, td { text-align: left; padding: .55rem .4rem; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
         .table-wrap { overflow-x: auto; }
+
+        .field-row { display: flex; gap: .75rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.25rem; }
+        .field-row label { display: flex; flex-direction: column; gap: .25rem; font-weight: 600; color: var(--text); }
     </style>
 </head>
 <body>
-    {% include "chores/_nav.html" %}
-    {% block content %}{% endblock %}
+    <div class="container">
+        {% include "chores/_nav.html" %}
+        {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

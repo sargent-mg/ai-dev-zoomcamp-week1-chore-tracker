@@ -1,7 +1,10 @@
 {% if household %}
-<nav>
-    <a href="{% url 'household_today' slug=household.slug %}">Today</a>
-    <a href="{% url 'household_detail' slug=household.slug %}">Setup</a>
-    <a href="{% url 'household_history' slug=household.slug %}">History</a>
+<nav class="tabs">
+    <a href="{% url 'household_today' slug=household.slug %}"
+       class="{% if request.resolver_match.url_name == 'household_today' %}active{% endif %}">Today</a>
+    <a href="{% url 'household_detail' slug=household.slug %}"
+       class="{% if request.resolver_match.url_name == 'household_detail' %}active{% endif %}">Setup</a>
+    <a href="{% url 'household_history' slug=household.slug %}"
+       class="{% if request.resolver_match.url_name == 'household_history' %}active{% endif %}">History</a>
 </nav>
 {% endif %}

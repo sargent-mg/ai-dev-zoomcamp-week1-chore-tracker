@@ -1,12 +1,20 @@
 {% extends "chores/base.html" %}
 
-{% block title %}Create a Household{% endblock %}
+{% block title %}Chore Tracker{% endblock %}
 
 {% block content %}
-<h1>Create a Household</h1>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Create</button>
-</form>
+<h1>🧹 Chore Tracker</h1>
+<p class="subtitle">A shared, no-login chore list for your household. Create one and share the link.</p>
+
+<div class="card">
+    <h2>Create a household</h2>
+    <form method="post" class="field-row">
+        {% csrf_token %}
+        <label>Household name
+            <input type="text" name="name" value="{{ form.name.value|default:'' }}" placeholder="e.g. The Smiths" required>
+        </label>
+        <button type="submit">Create household</button>
+    </form>
+    {% if form.name.errors %}<p class="empty">{{ form.name.errors|join:", " }}</p>{% endif %}
+</div>
 {% endblock %}

@@ -3,39 +3,54 @@
 {% block title %}History — {{ household.name }}{% endblock %}
 
 {% block content %}
-<h1>{{ household.name }} — History</h1>
+<h1>{{ household.name }}</h1>
+<p class="subtitle">History</p>
 
-<form method="get">
-    <label>Person:
-        <select name="person">
-            <option value="">All</option>
-            {% for person in people %}
-            <option value="{{ person.id }}" {% if selected_person == person.id|stringformat:"s" %}selected{% endif %}>{{ person.name }}</option>
-            {% endfor %}
-        </select>
-    </label>
-    <label>From: <input type="date" name="start" value="{{ start }}"></label>
-    <label>To: <input type="date" name="end" value="{{ end }}"></label>
-    <button type="submit">Filter</button>
-</form>
+<div class="card">
+    <form method="get" class="field-row">
+        <label>Person
+            <select name="person">
+                <option value="">All</option>
+                {% for person in people %}
+                <option value="{{ person.id }}" {% if selected_person == person.id|stringformat:"s" %}selected{% endif %}>{{ person.name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label>From
+            <input type="date" name="start" value="{{ start }}">
+        </label>
+        <label>To
+            <input type="date" name="end" value="{{ end }}">
+        </label>
+        <button type="submit" class="secondary">Filter</button>
+    </form>
+</div>
 
-<div class="table-wrap">
-    <table>
-        <thead>
-            <tr><th>Date</th><th>Chore</th><th>Person</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-            {% for log in logs %}
-            <tr>
-                <td>{{ log.date }}</td>
-                <td>{{ log.chore.name }}</td>
-                <td>{{ log.person.name }}</td>
-                <td>{{ log.get_status_display }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="4">No history yet.</td></tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<div class="card">
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Chore</th><th>Person</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.date }}</td>
+                    <td>{{ log.chore.name }}</td>
+                    <td>{{ log.person.name }}</td>
+                    <td>
+                        {% if log.status == "done" %}
+                            <span class="badge badge-done">Done</span>
+                        {% else %}
+                            <span class="badge badge-missed">Missed</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="empty">No history yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
